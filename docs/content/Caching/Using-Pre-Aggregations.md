@@ -322,7 +322,7 @@ Next, run Cube.js and tell it to connect to Cube Store running on `localhost`
 ```bash
 docker run -p 4000:4000 \
   -e CUBEJS_CUBESTORE_HOST=localhost \
-  -v ~/cube-conf:/cube/conf \
+  -v ${PWD}:/cube/conf \
   cubejs/cube
 ```
 
@@ -336,6 +336,10 @@ version: '2.2'
 services:
   cubestore:
     image: cubejs/cubestore:latest
+    environment:
+      - CUBESTORE_REMOTE_DIR=/cube/data
+    volumes:
+      - .cubestore:/cube/data
 
   cube:
     image: cubejs/cube:latest
@@ -380,6 +384,12 @@ variables; worker nodes **must** specify the `CUBESTORE_WORKER_PORT` and
 `CUBESTORE_META_ADDR` environment variables. More information about these
 variables can be found [in the Environment Variables reference][ref-config-env].
 
+<!-- prettier-ignore-start -->
+[[info | ]]
+| To fully take advantage of the worker nodes in the cluster, we **strongly**
+| recommend using partitioned pre-aggregations.
+<!-- prettier-ignore-end -->
+
 A sample Docker Compose stack setting this up might look like:
 
 ```yaml
@@ -393,10 +403,12 @@ services:
       - CUBESTORE_SERVER_NAME=cubestore_router:9999
       - CUBESTORE_META_PORT=9999
       - CUBESTORE_WORKERS=cubestore_worker_1:9001,cubestore_worker_2:9001
+      - CUBESTORE_REMOTE_DIR=/cube/data
     expose:
       - 9999 # This exposes the Metastore endpoint
-      - 3306 # This exposes the MySQL endpoint
       - 3030 # This exposes the HTTP endpoint for CubeJS
+    volumes:
+      - .cubestore:/cube/data
   cubestore_worker_1:
     restart: always
     image: cubejs/cubestore:latest
@@ -404,10 +416,13 @@ services:
       - CUBESTORE_SERVER_NAME=cubestore_worker_1:9001
       - CUBESTORE_WORKER_PORT=9001
       - CUBESTORE_META_ADDR=cubestore_router:9999
+      - CUBESTORE_REMOTE_DIR=/cube/data
     depends_on:
       - cubestore_router
     expose:
       - 9001
+    volumes:
+      - .cubestore:/cube/data
   cubestore_worker_2:
     restart: always
     image: cubejs/cubestore:latest
@@ -415,11 +430,13 @@ services:
       - CUBESTORE_SERVER_NAME=cubestore_worker_2:9001
       - CUBESTORE_WORKER_PORT=9001
       - CUBESTORE_META_ADDR=cubestore_router:9999
+      - CUBESTORE_REMOTE_DIR=/cube/data
     depends_on:
       - cubestore_router
     expose:
       - 9001
-
+    volumes:
+      - .cubestore:/cube/data
   cube:
     image: cubejs/cube:latest
     ports:
@@ -458,6 +475,9 @@ services:
       - CUBESTORE_S3_SUB_PATH=/
       - CUBESTORE_AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
       - CUBESTORE_AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
+      - CUBESTORE_REMOTE_DIR=/cube/data
+    volumes:
+      - .cubestore:/cube/data
   cube:
     image: cubejs/cube:latest
     ports:
