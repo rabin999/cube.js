@@ -13,6 +13,10 @@ This guide will help you get Cube.js running using Docker.
 | [Check out this page instead](/getting-started/docker/compose).
 <!-- prettier-ignore-end -->
 
+<div class="block-video" style="position: relative; padding-bottom: 56.25%; height: 0;">
+  <iframe src="https://www.loom.com/embed/2731b5be642840e08face238aa828f4c" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+</div>
+
 ## 1. Run Cube.js with Docker CLI
 
 <!-- prettier-ignore-start -->
